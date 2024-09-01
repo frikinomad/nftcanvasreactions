@@ -1,4 +1,4 @@
-export const maxDuration = 5; // This function can run for a maximum of 5 seconds
+export const maxDuration = 10; // This function can run for a maximum of 5 seconds
 
 import { NextRequest, NextResponse } from 'next/server'
 import { create, mplCore } from '@metaplex-foundation/mpl-core'
