@@ -41,12 +41,14 @@ const createNft = async (mintType: string) => {
   // ** Upload an image to Arweave **
   
   let image_path = ''
+  let imageUri;
   if(mintType == "Silver"){
     image_path = "silver_button.png"
   }else if(mintType == "Gold"){
     image_path = "gold_button.png"
   }else if(mintType == "Default"){
     image_path = "diamond_button.png"
+    imageUri = 'https://arweave.net/w39YFAUdVfHnlGjoGoL2idOFyfN6P75RMLKbykF8kK4'
   }
   console.log("stating image file");
   
@@ -57,19 +59,19 @@ const createNft = async (mintType: string) => {
   const umiImageFile = createGenericFile(imageFile, image_path, {
     tags: [{ name: 'Content-Type', value: 'image/png' }],
   })
-
-  console.log(`Uploading Image...${image_path}`)
-  const imageUri = await umi.uploader.upload([umiImageFile]).catch((err) => {
+  if(mintType !== "Default"){  
+    console.log(`Uploading Image...${image_path}`)
+    imageUri = await umi.uploader.upload([umiImageFile]).catch((err) => {
     throw new Error(err)
+    console.log('imageUri: ' + imageUri[0])
   })
-
-  console.log('imageUri: ' + imageUri[0])
+}
 
   // ** Upload Metadata to Arweave **
   const metadata = {
     name: 'My NFT',
     description: 'This is an NFT on Solana',
-    image: imageUri[0],
+    // image: imageUri[0],
     external_url: 'https://example.com',
     attributes: [
       {
@@ -84,7 +86,7 @@ const createNft = async (mintType: string) => {
     properties: {
       files: [
         {
-          uri: imageUri[0],
+          // uri: imageUri[0],
           type: 'image/jpeg',
         },
       ],
