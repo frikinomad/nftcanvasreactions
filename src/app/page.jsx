@@ -19,31 +19,33 @@ export default function Home() {
 
     // Canvas SDK likes
     const [reactionCount, setReactionCount] = useState(0);
-    useEffect(() => {
-        async function fetchData() {
-            try {
-                const canvasClient = new CanvasClient();            
-                const handleContentReaction = (reactionResponse) => {
-                    console.log('Reaction received:', reactionResponse);
-                    const status = reactionResponse.untrusted.status;
-                    console.log('Reaction status:', status);
-                    
-                    if (status === 'reacted') {
-                        setReactionCount(reactionCount+1)
-                        console.log('User reacted to the content!');
-                        console.log(reactionCount);
-                    }
-                };
-
-                canvasClient.onContentReaction(handleContentReaction);
-            } catch (error) {
-                console.error("Error fetching data:", error);
-            } 
-        }
-        fetchData();
-    }, []);
-
+    
     const mintNftcore = async () => {
+
+        useEffect(() => {
+            async function fetchData() {
+                try {
+                    const canvasClient = new CanvasClient();            
+                    const handleContentReaction = (reactionResponse) => {
+                        console.log('Reaction received:', reactionResponse);
+                        const status = reactionResponse.untrusted.status;
+                        console.log('Reaction status:', status);
+                        
+                        if (status === 'reacted') {
+                            setReactionCount(reactionCount+1)
+                            console.log('User reacted to the content!');
+                            console.log(reactionCount);
+                        }
+                    };
+    
+                    canvasClient.onContentReaction(handleContentReaction);
+                } catch (error) {
+                    console.error("Error fetching data:", error);
+                } 
+            }
+            fetchData();
+        }, [reactionCount]);
+
         try {
             // const response = await fetch('/api/mint-nft-core', { method: 'POST' });
             const response = await fetch('/api/mint-nft-core', {
