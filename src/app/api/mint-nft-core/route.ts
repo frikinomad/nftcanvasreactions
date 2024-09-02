@@ -15,7 +15,8 @@ import { createUmi } from '@metaplex-foundation/umi-bundle-defaults'
 import fs from 'fs'
 import path from 'path'
 
-const createNft = async () => {
+
+const createNft = async (mintType: string) => {
 
   const umi = createUmi('https://api.devnet.solana.com')
   .use(mplCore())
@@ -38,16 +39,25 @@ const createNft = async () => {
 
 
   // ** Upload an image to Arweave **
+  
+  let image_path = ''
+  if(mintType == "Silver"){
+    image_path = "silver_button.png"
+  }else if(mintType == "Gold"){
+    image_path = "gold_button.png"
+  }else if(mintType == "Default"){
+    image_path = "diamond_button.png"
+  }
 
   const imageFile = fs.readFileSync(
-    path.join(process.cwd(), 'uploads', 'image.png')
+    path.join(process.cwd(), 'uploads', image_path)
   )
 
-  const umiImageFile = createGenericFile(imageFile, 'image.png', {
+  const umiImageFile = createGenericFile(imageFile, image_path, {
     tags: [{ name: 'Content-Type', value: 'image/png' }],
   })
 
-  console.log('Uploading Image...')
+  console.log(`Uploading Image...${image_path}`)
   const imageUri = await umi.uploader.upload([umiImageFile]).catch((err) => {
     throw new Error(err)
   })
@@ -116,7 +126,8 @@ const createNft = async () => {
 
 export async function POST(req: NextRequest) {
     try {
-        const { solanaExplorerUrl, metaplexExplorerUrl } = await createNft();
+        const { mintType } = await req.json();
+        const { solanaExplorerUrl, metaplexExplorerUrl } = await createNft(mintType);
         return NextResponse.json({ 
             success: true,
             solanaExplorerUrl,
