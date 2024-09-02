@@ -14,7 +14,6 @@ export default function Home() {
     const [solanaExplorerUrl, setSolanaExplorerUrl] = useState(null);
     const [metaplexExplorerUrl, setMetaplexExplorerUrl] = useState(null);
     const [error, setError] = useState(null);
-    const [ mintType, setMintType ] = useState('')
     
 
     // Canvas SDK likes
@@ -34,9 +33,9 @@ export default function Home() {
               
               // Handle the reaction based on the status
               if (status === 'reacted') {
-                  setReactionCount(reactionCount+1)
-                  console.log('User reacted to the content!');
-                  console.log(reactionCount);
+                setReactionCount((prevCount) => prevCount + 1);
+                console.log('User reacted to the content!');
+                console.log(reactionCount);
               }
           };
   
@@ -49,16 +48,17 @@ export default function Home() {
       fetchData();
     }, []);
     
-    const mintNftcore = async () => {
+    const mintNftcore = async (type) => {
         try {
-
+            console.log("mintType frontend", type);
+            
             // const response = await fetch('/api/mint-nft-core', { method: 'POST' });
             const response = await fetch('/api/mint-nft-core', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ mintType }),
+                body: JSON.stringify({ mintType: type }),
             });
             const data = await response.json();
             if (data.success) {
@@ -90,8 +90,7 @@ export default function Home() {
                 <div className="mb-4">
                     <button
                         onClick={reactionCount === 1 ? () => {
-                            mintNftcore();
-                            setMintType('Silver');
+                            mintNftcore('Silver');
                         } : null}
                         className={`px-6 py-3 font-semibold rounded-lg shadow-md focus:outline-none focus:ring-2 focus:ring-offset-2 ${reactionCount >= 2 ? 'bg-gray-400 text-gray-700 cursor-not-allowed' : 'bg-gray-500 text-white hover:bg-gray-600 focus:ring-gray-400'}`}
                         disabled={reactionCount !== 1}
@@ -107,8 +106,7 @@ export default function Home() {
                 <div className="mb-4">
                     <button
                         onClick={reactionCount === 2 ? () => {
-                            mintNftcore();
-                            setMintType('Gold');
+                            mintNftcore('Gold');
                         } : null}
                         className={`px-6 py-3 font-semibold rounded-lg shadow-md focus:outline-none focus:ring-2 focus:ring-offset-2 ${reactionCount !== 2 ? 'bg-yellow-400 text-gray-700 cursor-not-allowed' : 'bg-yellow-500 text-white hover:bg-yellow-600 focus:ring-yellow-400'}`}
                         disabled={reactionCount !== 2}
@@ -126,8 +124,7 @@ export default function Home() {
                         <>
                             <button
                                 onClick={() => {
-                                    mintNftcore();
-                                    setMintType('Default');
+                                    mintNftcore('Default');
                                 }}
                                 className="px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
                             >

@@ -17,7 +17,7 @@ import path from 'path'
 
 
 const createNft = async (mintType: string) => {
-
+  
   const umi = createUmi('https://api.devnet.solana.com')
   .use(mplCore())
   .use(irysUploader())
@@ -48,7 +48,8 @@ const createNft = async (mintType: string) => {
   }else if(mintType == "Default"){
     image_path = "diamond_button.png"
   }
-
+  console.log("stating image file");
+  
   const imageFile = fs.readFileSync(
     path.join(process.cwd(), 'uploads', image_path)
   )
@@ -127,6 +128,8 @@ const createNft = async (mintType: string) => {
 export async function POST(req: NextRequest) {
     try {
         const { mintType } = await req.json();
+        console.log("mintType", mintType);
+        
         const { solanaExplorerUrl, metaplexExplorerUrl } = await createNft(mintType);
         return NextResponse.json({ 
             success: true,
