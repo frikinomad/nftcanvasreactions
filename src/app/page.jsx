@@ -93,6 +93,21 @@ export default function Home() {
         }
     };
 
+    const getNftcore = async () => {
+        try{
+            const response = await fetch('/api/mint-nft-core', {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            });
+            console.log(response.nfts);
+            
+        }catch(err){
+            throw new Error()
+        }
+    }
+
     return (
         <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 p-6">
             <div className="flex gap-4 mb-6">
@@ -171,6 +186,12 @@ export default function Home() {
                     Error: <span className="text-red-800">{error}</span>
                 </p>
             )}
+            <button
+                onClick={getNftcore}
+                className="px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+            >
+                See Minted NFT
+            </button>
         </div>
     );
 }

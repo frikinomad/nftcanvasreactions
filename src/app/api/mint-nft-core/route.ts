@@ -12,8 +12,9 @@ import {
 import { base58 } from '@metaplex-foundation/umi/serializers'
 import { irysUploader } from '@metaplex-foundation/umi-uploader-irys'
 import { createUmi } from '@metaplex-foundation/umi-bundle-defaults'
-import { Connection, PublicKey, clusterApiUrl } from '@solana/web3.js'
+import { Connection, clusterApiUrl, PublicKey, Keypair } from '@solana/web3.js'
 import { Metaplex } from '@metaplex-foundation/js'
+import { fetchAssetV1 } from '@metaplex-foundation/mpl-core'
 import fs from 'fs'
 import path from 'path'
 
@@ -155,30 +156,47 @@ export async function POST(req: NextRequest) {
 }
 
 
-const fetchNftsForWallet = async (publicKey: PublicKey) => {
+const fetchNftsForWallet = async () => {
 
-  const connection = new Connection(clusterApiUrl('devnet'));
-  const metaplex = new Metaplex(connection);
+  
+  const umi = createUmi('https://api.devnet.solana.com')
+  const walletFilePath = path.join(process.cwd(), 'src', '..', 'wallet.json');
+  const walletFile = fs.readFileSync(walletFilePath, 'utf8');
+  const secretKeyArray = new Uint8Array(JSON.parse(walletFile));
+  const keypair = umi.eddsa.createKeypairFromSecretKey(secretKeyArray);
+  const publicKeyWallet = keypair.publicKey;
+  umi.use(mplCore())
+  umi.use(irysUploader())
+  umi.use(keypairIdentity(keypair));
 
-  const nfts = await metaplex
-    .nfts()
-    .findAllByOwner(publicKey);
+  const nftSigner = generateSigner(umi)
 
-  return nfts.map((nft) => ({
-    name: nft.name,
-    uri: nft.uri,
-    mintAddress: nft.mintAddress.toBase58(),
-  }));
+  // Metaplex -> TokenMetadata
+  // NFT core
+  const asset = await fetchAssetV1(umi, nftSigner.publicKey)
+
+  console.log(asset)
+  
+  return {"nft": "rishi"}
+
+  // return nfts.map((nft) => ({
+  //   name: nft.name,
+  //   uri: nft.uri,
+  //   mintAddress: nft.address,
+  // }));
 };
 
 export async function GET(req: NextRequest) {
   try {
-    const walletFilePath = path.join(process.cwd(), 'src', '..', 'wallet.json');
-    const walletFile = fs.readFileSync(walletFilePath, 'utf8');
-    const secretKeyArray = new Uint8Array(JSON.parse(walletFile));
-    const keypair = createUmi('https://api.devnet.solana.com').eddsa.createKeypairFromSecretKey(secretKeyArray);
-    const publicKeyWallet = keypair.publicKey;
-    const nfts = await fetchNftsForWallet(publicKeyWallet);
+    // const walletFilePath = path.join(process.cwd(), 'src', '..', 'wallet.json');
+    // const walletFile = fs.readFileSync(walletFilePath, 'utf8');
+    // const secretKeyArray = new Uint8Array(JSON.parse(walletFile));
+    // const keypair = Keypair.fromSecretKey(secretKeyArray);
+
+    // const nfts = await fetchNftsForWallet(keypair.publicKey);
+    
+    
+    const nfts = await fetchNftsForWallet();
 
     return NextResponse.json({
       success: true,
