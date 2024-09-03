@@ -12,6 +12,8 @@ import {
 import { base58 } from '@metaplex-foundation/umi/serializers'
 import { irysUploader } from '@metaplex-foundation/umi-uploader-irys'
 import { createUmi } from '@metaplex-foundation/umi-bundle-defaults'
+import { Connection, PublicKey, clusterApiUrl } from '@solana/web3.js'
+import { Metaplex } from '@metaplex-foundation/js'
 import fs from 'fs'
 import path from 'path'
 
@@ -41,14 +43,14 @@ const createNft = async (mintType: string, user: string) => {
   // ** Upload an image to Arweave **
   
   let image_path = ''
-  let imageUri;
+  let imageUriString = '' 
   if(mintType == "Silver"){
     image_path = "silver_button.png"
   }else if(mintType == "Gold"){
     image_path = "gold_button.png"
   }else if(mintType == "Default"){
     image_path = "diamond_button.png"
-    imageUri = 'https://arweave.net/w39YFAUdVfHnlGjoGoL2idOFyfN6P75RMLKbykF8kK4'
+    imageUriString = 'https://arweave.net/w39YFAUdVfHnlGjoGoL2idOFyfN6P75RMLKbykF8kK4'
   }
   
   const imageFile = fs.readFileSync(
@@ -59,7 +61,6 @@ const createNft = async (mintType: string, user: string) => {
     tags: [{ name: 'Content-Type', value: 'image/png' }],
   })
 
-  let imageUriString = '' 
   if(mintType !== "Default"){  
     console.log(`Uploading Image...${image_path}`)
     try {
@@ -153,24 +154,42 @@ export async function POST(req: NextRequest) {
     }
 }
 
-export async function GET() {
-  try {
-      const { mintType, user } = await req.json();
-      console.log("mintType", mintType);
-      console.log("user from dscvr", user);
-      
-      const { solanaExplorerUrl, metaplexExplorerUrl } = await createNft(mintType, user);
-      return NextResponse.json({ 
-          success: true,
-          solanaExplorerUrl,
-          metaplexExplorerUrl
-      });
-  } catch (error) {
-      console.error('Error creating NFT:', error);
 
-      // Ensure error is serializable
-      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-      
-      return NextResponse.json({ success: false, error: errorMessage }, { status: 500 });
+const fetchNftsForWallet = async (publicKey: PublicKey) => {
+
+  const connection = new Connection(clusterApiUrl('devnet'));
+  const metaplex = new Metaplex(connection);
+
+  const nfts = await metaplex
+    .nfts()
+    .findAllByOwner(publicKey);
+
+  return nfts.map((nft) => ({
+    name: nft.name,
+    uri: nft.uri,
+    mintAddress: nft.mintAddress.toBase58(),
+  }));
+};
+
+export async function GET(req: NextRequest) {
+  try {
+    const walletFilePath = path.join(process.cwd(), 'src', '..', 'wallet.json');
+    const walletFile = fs.readFileSync(walletFilePath, 'utf8');
+    const secretKeyArray = new Uint8Array(JSON.parse(walletFile));
+    const keypair = createUmi('https://api.devnet.solana.com').eddsa.createKeypairFromSecretKey(secretKeyArray);
+    const publicKeyWallet = keypair.publicKey;
+    const nfts = await fetchNftsForWallet(publicKeyWallet);
+
+    return NextResponse.json({
+      success: true,
+      nfts,
+    });
+  } catch (error) {
+    console.error('Error fetching NFTs:', error);
+
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    
+    return NextResponse.json({ success: false, error: errorMessage }, { status: 500 });
   }
 }
+
