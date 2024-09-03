@@ -16,7 +16,7 @@ import fs from 'fs'
 import path from 'path'
 
 
-const createNft = async (mintType: string) => {
+const createNft = async (mintType: string, user: string) => {
   
   const umi = createUmi('https://api.devnet.solana.com')
   .use(mplCore())
@@ -50,7 +50,6 @@ const createNft = async (mintType: string) => {
     image_path = "diamond_button.png"
     imageUri = 'https://arweave.net/w39YFAUdVfHnlGjoGoL2idOFyfN6P75RMLKbykF8kK4'
   }
-  console.log("stating image file");
   
   const imageFile = fs.readFileSync(
     path.join(process.cwd(), 'uploads', image_path)
@@ -59,19 +58,24 @@ const createNft = async (mintType: string) => {
   const umiImageFile = createGenericFile(imageFile, image_path, {
     tags: [{ name: 'Content-Type', value: 'image/png' }],
   })
+
+  let imageUriString = '' 
   if(mintType !== "Default"){  
     console.log(`Uploading Image...${image_path}`)
-    imageUri = await umi.uploader.upload([umiImageFile]).catch((err) => {
-    throw new Error(err)
-    console.log('imageUri: ' + imageUri[0])
-  })
+    try {
+      const imageUri = await umi.uploader.upload([umiImageFile]);
+      imageUriString = imageUri[0];
+      console.log('imageUri: ' + imageUriString);
+    } catch (err) {
+        throw new Error();
+    }
 }
 
   // ** Upload Metadata to Arweave **
   const metadata = {
-    name: 'My NFT',
+    name: user || 'My NFT',
     description: 'This is an NFT on Solana',
-    // image: imageUri[0],
+    image: imageUriString,
     external_url: 'https://example.com',
     attributes: [
       {
@@ -86,7 +90,7 @@ const createNft = async (mintType: string) => {
     properties: {
       files: [
         {
-          // uri: imageUri[0],
+          uri: imageUriString,
           type: 'image/jpeg',
         },
       ],
@@ -129,10 +133,11 @@ const createNft = async (mintType: string) => {
 
 export async function POST(req: NextRequest) {
     try {
-        const { mintType } = await req.json();
+        const { mintType, user } = await req.json();
         console.log("mintType", mintType);
+        console.log("user from dscvr", user);
         
-        const { solanaExplorerUrl, metaplexExplorerUrl } = await createNft(mintType);
+        const { solanaExplorerUrl, metaplexExplorerUrl } = await createNft(mintType, user);
         return NextResponse.json({ 
             success: true,
             solanaExplorerUrl,
@@ -146,4 +151,26 @@ export async function POST(req: NextRequest) {
         
         return NextResponse.json({ success: false, error: errorMessage }, { status: 500 });
     }
+}
+
+export async function GET() {
+  try {
+      const { mintType, user } = await req.json();
+      console.log("mintType", mintType);
+      console.log("user from dscvr", user);
+      
+      const { solanaExplorerUrl, metaplexExplorerUrl } = await createNft(mintType, user);
+      return NextResponse.json({ 
+          success: true,
+          solanaExplorerUrl,
+          metaplexExplorerUrl
+      });
+  } catch (error) {
+      console.error('Error creating NFT:', error);
+
+      // Ensure error is serializable
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      
+      return NextResponse.json({ success: false, error: errorMessage }, { status: 500 });
+  }
 }

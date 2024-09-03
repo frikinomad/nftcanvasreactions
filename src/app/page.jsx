@@ -14,7 +14,7 @@ export default function Home() {
     const [solanaExplorerUrl, setSolanaExplorerUrl] = useState(null);
     const [metaplexExplorerUrl, setMetaplexExplorerUrl] = useState(null);
     const [error, setError] = useState(null);
-    
+    const [user, setUser] = useState(null);    
 
     // Canvas SDK likes
     const [reactionCount, setReactionCount] = useState(0);
@@ -25,6 +25,8 @@ export default function Home() {
         
         try {
           const canvasClient = new CanvasClient();
+          const response = await canvasClient.ready();
+
           
           const handleContentReaction = (reactionResponse) => {
             console.log('Reaction received:', reactionResponse);
@@ -40,6 +42,13 @@ export default function Home() {
           };
   
           canvasClient.onContentReaction(handleContentReaction);
+
+          if (response) {
+            const user = response.untrusted.user;
+            console.log(user);
+  
+            if (user) setUser(user);
+          }
   
         } catch (error) {
           console.error("Error fetching data:", error);
@@ -58,7 +67,7 @@ export default function Home() {
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ mintType: type }),
+                body: JSON.stringify({ mintType: type, user }),
             });
             const data = await response.json();
             if (data.success) {
