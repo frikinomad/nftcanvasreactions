@@ -1,24 +1,15 @@
-export const maxDuration = 10; // This function can run for a maximum of 5 seconds
-
 import { NextRequest, NextResponse } from 'next/server'
 import { create, mplCore } from '@metaplex-foundation/mpl-core'
 import {
   createGenericFile,
   generateSigner,
   keypairIdentity,
-  signerIdentity,
   sol,
 } from '@metaplex-foundation/umi'
-import { base58 } from '@metaplex-foundation/umi/serializers'
 import { irysUploader } from '@metaplex-foundation/umi-uploader-irys'
 import { createUmi } from '@metaplex-foundation/umi-bundle-defaults'
-import { Connection, clusterApiUrl, PublicKey, Keypair } from '@solana/web3.js'
-import { Metaplex } from '@metaplex-foundation/js'
-// import { fetchAssetV1 } from '@metaplex-foundation/mpl-core'
 import fs from 'fs'
 import path from 'path'
-// import { database, ref, set, get } from '../../../../firebase'  // Import Firebase database functions
-import { db, collection, doc, setDoc } from '../../../../firebase'; // Adjust import path as needed
 
 
 const createNft = async (mintType: string, user: string) => {
@@ -64,7 +55,7 @@ const createNft = async (mintType: string, user: string) => {
     tags: [{ name: 'Content-Type', value: 'image/png' }],
   })
 
-  if(mintType !== "Default"){  
+  if(mintType !== "Default"){
     console.log(`Uploading Image...${image_path}`)
     try {
       const imageUri = await umi.uploader.upload([umiImageFile]);
@@ -77,7 +68,7 @@ const createNft = async (mintType: string, user: string) => {
 
   // ** Upload Metadata to Arweave **
   const metadata = {
-    name: user || 'My NFT',
+    name: user || 'My NFT Core',
     description: 'This is an NFT on Solana',
     image: imageUriString,
     external_url: 'https://example.com',
@@ -119,24 +110,13 @@ const createNft = async (mintType: string, user: string) => {
     uri: metadataUri,
   }).send(umi)
 
-  console.log(tx);
-  
   // const signature = base58.deserialize(tx.signature)[0]
-
-  console.log('\nNFT Created')
-  console.log('View Transaction on Solana Explorer')
-  // console.log(`https://explorer.solana.com/tx/${signature}?cluster=devnet`)
-  console.log('\n')
   console.log('View NFT on Metaplex Explorer')
   console.log(`https://core.metaplex.com/explorer/${nftSigner.publicKey}?env=devnet`)
-
-  // const solanaExplorerUrl = `https://explorer.solana.com/tx/${signature}?cluster=devnet`;
   const metaplexExplorerUrl = `https://core.metaplex.com/explorer/${nftSigner.publicKey}?env=devnet`;
+  // const nftkey = nftSigner.publicKey;
 
-  const nftkey = nftSigner.publicKey;
-
-  // return { solanaExplorerUrl, metaplexExplorerUrl, nftkey };
-  return { nftkey };
+  return { metaplexExplorerUrl};
 
 }
 
@@ -147,31 +127,15 @@ export async function POST(req: NextRequest) {
         console.log("mintType", mintType);
         console.log("user from dscvr", user);
 
-        await createNft(mintType, user)
-
-        // createNft(mintType, user).then(async ({ nftkey }) => {
-
-        //   const now = new Date();
-        //   const timestamp = now.toISOString().replace(/[^0-9]/g, '').slice(0, 14); // Format: YYYYMMDDHHMMSS    
-        //   console.log(timestamp);
-              
-        //   const nftRef = doc(collection(db, 'nft_metadata'), timestamp);
-        //   console.log(nftkey);
-          
-        //   await setDoc(nftRef, { nftkey });
-        // }).catch(error => {
-        //   console.error('Error creating NFT:', error);
-        // });
+        const { metaplexExplorerUrl } = await createNft(mintType, user)
 
         return NextResponse.json({ 
-            success: true
-        }, { status: 202 });
+            success: true,
+            metaplexExplorerUrl,
+        }, { status: 200 });
     } catch (error) {
         console.error('Error creating NFT:', error);
-
-        // Ensure error is serializable
         const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-        
         return NextResponse.json({ success: false, error: errorMessage }, { status: 500 });
     }
 }

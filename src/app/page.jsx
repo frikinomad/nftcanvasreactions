@@ -6,7 +6,7 @@ import { CanvasClient } from "@dscvr-one/canvas-client-sdk";
 
 export default function Home() {
     const [mintAddress, setMintAddress] = useState(null);
-    const [solanaExplorerUrl, setSolanaExplorerUrl] = useState(null);
+    // const [solanaExplorerUrl, setSolanaExplorerUrl] = useState(null);
     const [metaplexExplorerUrl, setMetaplexExplorerUrl] = useState(null);
     const [error, setError] = useState(null);
     const [user, setUser] = useState(null);    
@@ -67,52 +67,24 @@ export default function Home() {
             const data = await response.json();
             console.log(data);
             
-            // if (data.success) {
-            //     setMintAddress(data.success);
-            //     setSolanaExplorerUrl(data.solanaExplorerUrl || null);
-            //     setMetaplexExplorerUrl(data.metaplexExplorerUrl || null);
-            //     setError(null);
-            // } else {
-            //     setError(data.error);
-            //     setMintAddress(null);
-            //     setSolanaExplorerUrl(null);
-            //     setMetaplexExplorerUrl(null);
-            // }
+            if (data.success) {
+                setMintAddress(data.success);
+                setMetaplexExplorerUrl(data.metaplexExplorerUrl || null);
+                setError(null);
+            } else {
+                setError(data.error);
+                setMetaplexExplorerUrl(null);
+            }
         } catch (err) {
             if (err instanceof Error) {
                 setError(err.message);
             } else {
                 setError('An unknown error occurred');
             }
-            setMintAddress(null);
-            setSolanaExplorerUrl(null);
             setMetaplexExplorerUrl(null);
         }
     };
 
-    const [nftData, setNftData] = useState(null);
-    const viewnftcore = async () => {
-        try {
-            let type = user ? user : 'latest';
-            const response = await fetch('/api/get-nft-core', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ id: type }),
-            });
-            const data = await response.json();
-            console.log(data);
-        
-            if (!response.ok) {
-                throw new Error(data.error || 'Failed to fetch data');
-            }
-        
-            await setNftData(data.data);
-        } catch (error) {
-          setError(error instanceof Error ? error.message : 'Unknown error');
-        } 
-      };
 
     return (
         <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 p-6">
@@ -169,14 +141,6 @@ export default function Home() {
                     <p>
                         NFT Minted: <span className="text-blue-600">{mintAddress}</span>
                     </p>
-                    {solanaExplorerUrl && (
-                        <p>
-                            View your NFT on Solana Explorer: 
-                            <a href={solanaExplorerUrl} className="text-blue-500 hover:underline" target="_blank" rel="noopener noreferrer">
-                                {solanaExplorerUrl}
-                            </a>
-                        </p>
-                    )}
                     {metaplexExplorerUrl && (
                         <p>
                             View your NFT on Metaplex Explorer: 
@@ -192,25 +156,6 @@ export default function Home() {
                     Error: <span className="text-red-800">{error}</span>
                 </p>
             )}
-            <p>
-                <button onClick={viewnftcore}
-                    className="px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-                >View Latest NFT</button>
-                {nftData && (
-                    <div>
-                        {/* <p><strong>Solana Explorer URL:</strong> <a href={nftData.solanaExplorerUrl} target="_blank" rel="noopener noreferrer">{nftData.solanaExplorerUrl}</a></p> */}
-                        {/* <p><strong>Metaplex Explorer URL:</strong> <a href={nftData.metaplexExplorerUrl} target="_blank" rel="noopener noreferrer">{nftData.metaplexExplorerUrl}</a></p> */}
-                        <a 
-                            href={`https://core.metaplex.com/explorer/${nftData.nftkey}?env=devnet`} 
-                            target="_blank" 
-                            rel="noopener noreferrer"
-                            style={{ color: 'blue' }} // Inline style for blue color
-                        >
-                            View NFT on Metaplex Explorer: `https://core.metaplex.com/explorer/{nftData.nftkey}?env=devnet`
-                        </a>                  
-                    </div>
-                )}
-            </p>
         </div>
     );
 }
