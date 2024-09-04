@@ -14,9 +14,11 @@ import { irysUploader } from '@metaplex-foundation/umi-uploader-irys'
 import { createUmi } from '@metaplex-foundation/umi-bundle-defaults'
 import { Connection, clusterApiUrl, PublicKey, Keypair } from '@solana/web3.js'
 import { Metaplex } from '@metaplex-foundation/js'
-import { fetchAssetV1 } from '@metaplex-foundation/mpl-core'
+// import { fetchAssetV1 } from '@metaplex-foundation/mpl-core'
 import fs from 'fs'
 import path from 'path'
+// import { database, ref, set, get } from '../../../../firebase'  // Import Firebase database functions
+import { db, collection, doc, setDoc } from '../../../../firebase'; // Adjust import path as needed
 
 
 const createNft = async (mintType: string, user: string) => {
@@ -129,7 +131,11 @@ const createNft = async (mintType: string, user: string) => {
   const solanaExplorerUrl = `https://explorer.solana.com/tx/${signature}?cluster=devnet`;
   const metaplexExplorerUrl = `https://core.metaplex.com/explorer/${nftSigner.publicKey}?env=devnet`;
 
-  return { solanaExplorerUrl, metaplexExplorerUrl };
+  const nftkey = nftSigner.publicKey;
+
+  // return { solanaExplorerUrl, metaplexExplorerUrl, nftkey };
+  return { nftkey };
+
 }
 
 
@@ -138,12 +144,23 @@ export async function POST(req: NextRequest) {
         const { mintType, user } = await req.json();
         console.log("mintType", mintType);
         console.log("user from dscvr", user);
-        
-        const { solanaExplorerUrl, metaplexExplorerUrl } = await createNft(mintType, user);
+
+        createNft(mintType, user).then(async ({ nftkey }) => {
+
+          const now = new Date();
+          const timestamp = now.toISOString().replace(/[^0-9]/g, '').slice(0, 14); // Format: YYYYMMDDHHMMSS    
+          console.log(timestamp);
+              
+          const nftRef = doc(collection(db, 'nft_metadata'), timestamp);
+          console.log(nftkey);
+          
+          await setDoc(nftRef, { nftkey });
+        }).catch(error => {
+          console.error('Error creating NFT:', error);
+        });
+
         return NextResponse.json({ 
-            success: true,
-            solanaExplorerUrl,
-            metaplexExplorerUrl
+            success: true
         });
     } catch (error) {
         console.error('Error creating NFT:', error);
@@ -155,59 +172,4 @@ export async function POST(req: NextRequest) {
     }
 }
 
-
-const fetchNftsForWallet = async () => {
-
-  
-  const umi = createUmi('https://api.devnet.solana.com')
-  const walletFilePath = path.join(process.cwd(), 'src', '..', 'wallet.json');
-  const walletFile = fs.readFileSync(walletFilePath, 'utf8');
-  const secretKeyArray = new Uint8Array(JSON.parse(walletFile));
-  const keypair = umi.eddsa.createKeypairFromSecretKey(secretKeyArray);
-  const publicKeyWallet = keypair.publicKey;
-  umi.use(mplCore())
-  umi.use(irysUploader())
-  umi.use(keypairIdentity(keypair));
-
-  const nftSigner = generateSigner(umi)
-
-  // Metaplex -> TokenMetadata
-  // NFT core
-  const asset = await fetchAssetV1(umi, nftSigner.publicKey)
-
-  console.log(asset)
-  
-  return {"nft": "rishi"}
-
-  // return nfts.map((nft) => ({
-  //   name: nft.name,
-  //   uri: nft.uri,
-  //   mintAddress: nft.address,
-  // }));
-};
-
-export async function GET(req: NextRequest) {
-  try {
-    // const walletFilePath = path.join(process.cwd(), 'src', '..', 'wallet.json');
-    // const walletFile = fs.readFileSync(walletFilePath, 'utf8');
-    // const secretKeyArray = new Uint8Array(JSON.parse(walletFile));
-    // const keypair = Keypair.fromSecretKey(secretKeyArray);
-
-    // const nfts = await fetchNftsForWallet(keypair.publicKey);
-    
-    
-    const nfts = await fetchNftsForWallet();
-
-    return NextResponse.json({
-      success: true,
-      nfts,
-    });
-  } catch (error) {
-    console.error('Error fetching NFTs:', error);
-
-    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-    
-    return NextResponse.json({ success: false, error: errorMessage }, { status: 500 });
-  }
-}
 

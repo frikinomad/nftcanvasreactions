@@ -5,11 +5,6 @@ import { CanvasClient } from "@dscvr-one/canvas-client-sdk";
 
 
 export default function Home() {
-    // // To support TSX
-    // const [mintAddress, setMintAddress] = useState<string | null>(null);
-    // const [solanaExplorerUrl, setSolanaExplorerUrl] = useState<string | null>(null);
-    // const [metaplexExplorerUrl, setMetaplexExplorerUrl] = useState<string | null>(null);
-    // const [error, setError] = useState<string | null>(null);
     const [mintAddress, setMintAddress] = useState(null);
     const [solanaExplorerUrl, setSolanaExplorerUrl] = useState(null);
     const [metaplexExplorerUrl, setMetaplexExplorerUrl] = useState(null);
@@ -70,17 +65,19 @@ export default function Home() {
                 body: JSON.stringify({ mintType: type, user }),
             });
             const data = await response.json();
-            if (data.success) {
-                setMintAddress(data.success);
-                setSolanaExplorerUrl(data.solanaExplorerUrl || null);
-                setMetaplexExplorerUrl(data.metaplexExplorerUrl || null);
-                setError(null);
-            } else {
-                setError(data.error);
-                setMintAddress(null);
-                setSolanaExplorerUrl(null);
-                setMetaplexExplorerUrl(null);
-            }
+            console.log(data);
+            
+            // if (data.success) {
+            //     setMintAddress(data.success);
+            //     setSolanaExplorerUrl(data.solanaExplorerUrl || null);
+            //     setMetaplexExplorerUrl(data.metaplexExplorerUrl || null);
+            //     setError(null);
+            // } else {
+            //     setError(data.error);
+            //     setMintAddress(null);
+            //     setSolanaExplorerUrl(null);
+            //     setMetaplexExplorerUrl(null);
+            // }
         } catch (err) {
             if (err instanceof Error) {
                 setError(err.message);
@@ -93,20 +90,29 @@ export default function Home() {
         }
     };
 
-    const getNftcore = async () => {
-        try{
-            const response = await fetch('/api/mint-nft-core', {
-                method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json',
-                }
+    const [nftData, setNftData] = useState(null);
+    const viewnftcore = async () => {
+        try {
+            let type = user ? user : 'latest';
+            const response = await fetch('/api/get-nft-core', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ id: type }),
             });
-            console.log(response.nfts);
-            
-        }catch(err){
-            throw new Error()
-        }
-    }
+            const data = await response.json();
+            console.log(data);
+        
+            if (!response.ok) {
+                throw new Error(data.error || 'Failed to fetch data');
+            }
+        
+            await setNftData(data.data);
+        } catch (error) {
+          setError(error instanceof Error ? error.message : 'Unknown error');
+        } 
+      };
 
     return (
         <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 p-6">
@@ -186,12 +192,25 @@ export default function Home() {
                     Error: <span className="text-red-800">{error}</span>
                 </p>
             )}
-            <button
-                onClick={getNftcore}
-                className="px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-            >
-                See Minted NFT
-            </button>
+            <p>
+                <button onClick={viewnftcore}
+                    className="px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                >View Latest NFT</button>
+                {nftData && (
+                    <div>
+                        {/* <p><strong>Solana Explorer URL:</strong> <a href={nftData.solanaExplorerUrl} target="_blank" rel="noopener noreferrer">{nftData.solanaExplorerUrl}</a></p> */}
+                        {/* <p><strong>Metaplex Explorer URL:</strong> <a href={nftData.metaplexExplorerUrl} target="_blank" rel="noopener noreferrer">{nftData.metaplexExplorerUrl}</a></p> */}
+                        <a 
+                            href={`https://core.metaplex.com/explorer/${nftData.nftkey}?env=devnet`} 
+                            target="_blank" 
+                            rel="noopener noreferrer"
+                            style={{ color: 'blue' }} // Inline style for blue color
+                        >
+                            View NFT on Metaplex Explorer: `https://core.metaplex.com/explorer/{nftData.nftkey}?env=devnet`
+                        </a>                  
+                    </div>
+                )}
+            </p>
         </div>
     );
 }
