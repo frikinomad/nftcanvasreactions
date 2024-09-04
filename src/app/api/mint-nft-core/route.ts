@@ -117,18 +117,20 @@ const createNft = async (mintType: string, user: string) => {
     asset: nftSigner,
     name: 'My NFT',
     uri: metadataUri,
-  }).sendAndConfirm(umi)
+  }).send(umi)
 
-  const signature = base58.deserialize(tx.signature)[0]
+  console.log(tx);
+  
+  // const signature = base58.deserialize(tx.signature)[0]
 
   console.log('\nNFT Created')
   console.log('View Transaction on Solana Explorer')
-  console.log(`https://explorer.solana.com/tx/${signature}?cluster=devnet`)
+  // console.log(`https://explorer.solana.com/tx/${signature}?cluster=devnet`)
   console.log('\n')
   console.log('View NFT on Metaplex Explorer')
   console.log(`https://core.metaplex.com/explorer/${nftSigner.publicKey}?env=devnet`)
 
-  const solanaExplorerUrl = `https://explorer.solana.com/tx/${signature}?cluster=devnet`;
+  // const solanaExplorerUrl = `https://explorer.solana.com/tx/${signature}?cluster=devnet`;
   const metaplexExplorerUrl = `https://core.metaplex.com/explorer/${nftSigner.publicKey}?env=devnet`;
 
   const nftkey = nftSigner.publicKey;
@@ -145,19 +147,21 @@ export async function POST(req: NextRequest) {
         console.log("mintType", mintType);
         console.log("user from dscvr", user);
 
-        createNft(mintType, user).then(async ({ nftkey }) => {
+        await createNft(mintType, user)
 
-          const now = new Date();
-          const timestamp = now.toISOString().replace(/[^0-9]/g, '').slice(0, 14); // Format: YYYYMMDDHHMMSS    
-          console.log(timestamp);
+        // createNft(mintType, user).then(async ({ nftkey }) => {
+
+        //   const now = new Date();
+        //   const timestamp = now.toISOString().replace(/[^0-9]/g, '').slice(0, 14); // Format: YYYYMMDDHHMMSS    
+        //   console.log(timestamp);
               
-          const nftRef = doc(collection(db, 'nft_metadata'), timestamp);
-          console.log(nftkey);
+        //   const nftRef = doc(collection(db, 'nft_metadata'), timestamp);
+        //   console.log(nftkey);
           
-          await setDoc(nftRef, { nftkey });
-        }).catch(error => {
-          console.error('Error creating NFT:', error);
-        });
+        //   await setDoc(nftRef, { nftkey });
+        // }).catch(error => {
+        //   console.error('Error creating NFT:', error);
+        // });
 
         return NextResponse.json({ 
             success: true
