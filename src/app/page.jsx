@@ -40,9 +40,10 @@ export default function Home() {
 
           if (response) {
             const user = response.untrusted.user;
-            console.log(user);
+            
+            console.log(user.username);
   
-            if (user) setUser(user);
+            if (user) setUser(user.username);
           }
   
         } catch (error) {

@@ -104,11 +104,7 @@ const createNft = async (mintType: string, user: string) => {
   const nftSigner = generateSigner(umi)
 
   console.log('Creating NFT...')
-  const tx = await create(umi, {
-    asset: nftSigner,
-    name: 'My NFT',
-    uri: metadataUri,
-  }).send(umi)
+  await create(umi, { asset: nftSigner,name: 'My NFT', uri: metadataUri,}).send(umi)
 
   // const signature = base58.deserialize(tx.signature)[0]
   console.log('View NFT on Metaplex Explorer')
