@@ -37,6 +37,10 @@ export default function Home() {
   
           canvasClient.onContentReaction(handleContentReaction);
 
+          const key = canvasClient.connectWallet()
+          console.log(key);
+          
+
           if (response) {
             const user = response.untrusted.user;
             
