@@ -34,42 +34,21 @@ const createNft = async (mintType: string, user: string) => {
   }
 
 
-  // ** Upload an image to Arweave **
-  
-  let image_path = ''
+  // ** using uploaded images on Arweave **
   let imageUriString = '' 
   if(mintType == "Silver"){
-    image_path = "silver_button.png"
+    imageUriString = 'https://arweave.net/02hEPqsjtuiRTWxmUjH4pG7DhHcWhkgvQV4xJz6mCdM'
   }else if(mintType == "Gold"){
-    image_path = "gold_button.png"
+    imageUriString = 'https://arweave.net/tcWkmCJ-veSF0VMsYN0DhdOOHXaMKd_RTFKzYoIYLuA'
   }else if(mintType == "Default"){
-    image_path = "diamond_button.png"
     imageUriString = 'https://arweave.net/w39YFAUdVfHnlGjoGoL2idOFyfN6P75RMLKbykF8kK4'
   }
   
-  const imageFile = fs.readFileSync(
-    path.join(process.cwd(), 'uploads', image_path)
-  )
-
-  const umiImageFile = createGenericFile(imageFile, image_path, {
-    tags: [{ name: 'Content-Type', value: 'image/png' }],
-  })
-
-  if(mintType !== "Default"){
-    console.log(`Uploading Image...${image_path}`)
-    try {
-      const imageUri = await umi.uploader.upload([umiImageFile]);
-      imageUriString = imageUri[0];
-      console.log('imageUri: ' + imageUriString);
-    } catch (err) {
-        throw new Error();
-    }
-}
 
   // ** Upload Metadata to Arweave **
   const metadata = {
     name: user || 'My NFT Core',
-    description: 'This is an NFT on Solana',
+    description: `Congratulations on ${mintType} Milestone`,
     image: imageUriString,
     external_url: 'https://example.com',
     attributes: [
@@ -98,24 +77,18 @@ const createNft = async (mintType: string, user: string) => {
     throw new Error(err)
   })
 
-  // ** Creating the NFT **
 
   // We generate a signer for the NFT
   const nftSigner = generateSigner(umi)
-
   console.log('Creating NFT...')
   await create(umi, { asset: nftSigner,name: 'My NFT', uri: metadataUri,}).send(umi)
 
-  // const signature = base58.deserialize(tx.signature)[0]
   console.log('View NFT on Metaplex Explorer')
   console.log(`https://core.metaplex.com/explorer/${nftSigner.publicKey}?env=devnet`)
   const metaplexExplorerUrl = `https://core.metaplex.com/explorer/${nftSigner.publicKey}?env=devnet`;
-  // const nftkey = nftSigner.publicKey;
-
   return { metaplexExplorerUrl};
 
 }
-
 
 export async function POST(req: NextRequest) {
     try {

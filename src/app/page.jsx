@@ -16,7 +16,6 @@ export default function Home() {
 
     useEffect(() => {
         async function fetchData() {
-        console.log("useEffect fetch data");
         
         try {
           const canvasClient = new CanvasClient();
