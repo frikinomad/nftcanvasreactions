@@ -16,45 +16,44 @@ export default function Home() {
 
     useEffect(() => {
         async function fetchData() {
-        
-        try {
-          const canvasClient = new CanvasClient();
-          const response = await canvasClient.ready();
+            try {
+                const canvasClient = new CanvasClient();
+                const response = await canvasClient.ready();
 
-          
-          const handleContentReaction = async (reactionResponse) => {
-            console.log('Reaction received:', reactionResponse);
-            const status = reactionResponse.untrusted.status;
-              console.log('Reaction status:', status);
-              
-              // Handle the reaction based on the status
-              if (status === 'reacted') {
-                let new_count = reactionCount + 1;
-                await setReactionCount(new_count);
-                console.log('User reacted to the content!');
+                const handleContentReaction = async (reactionResponse) => {
+                    console.log('Reaction received:', reactionResponse);
+                    const status = reactionResponse.untrusted.status;
+                    console.log('Reaction status:', status);
+
+                    if (status === 'reacted') {
+                        // Use functional form of setReactionCount to update based on the previous value
+                        await setReactionCount(prevCount => {
+                            const new_count = prevCount + 1;
+                            console.log('New reaction count:', new_count);
+                            return new_count; // Return the updated value
+                        });
+
+                        console.log('User reacted to the content!');
+                    }
+                };
+
+                canvasClient.onContentReaction(handleContentReaction);
+
+                const key = canvasClient.connectWallet();
+                console.log(key);
                 console.log(reactionCount);
-              }
-          };
-  
-          canvasClient.onContentReaction(handleContentReaction);
+                
+                if (response) {
+                    const user = response.untrusted.user;
+                    console.log(user.username);
 
-          const key = canvasClient.connectWallet()
-          console.log(key);
-          
-
-          if (response) {
-            const user = response.untrusted.user;
-            
-            console.log(user.username);
-  
-            if (user) setUser(user.username);
-          }
-  
-        } catch (error) {
-          console.error("Error fetching data:", error);
+                    if (user) setUser(user.username);
+                }
+            } catch (error) {
+                console.error("Error fetching data:", error);
+            }
         }
-      }
-      fetchData();
+        fetchData();
     }, []);
     
     const mintNftcore = async (type) => {
@@ -182,15 +181,12 @@ export default function Home() {
     
             {/* Button Section */}
             <div className="flex flex-col items-center space-y-6">
+                {reactionCount}
                 {/* Silver Button */}
                 <div className="flex flex-col items-center">
                     <button
                         onClick={reactionCount === 0 ? () => mintNftcore('Silver') : null}
-                        className={`px-8 py-3 text-lg font-bold rounded-full shadow-lg transform transition-transform focus:outline-none focus:ring-4 ${
-                            reactionCount == 1
-                                ? 'bg-gray-400 text-gray-800 cursor-not-allowed'
-                                : 'bg-gray-800 text-white hover:scale-105 hover:bg-gray-900 focus:ring-gray-400'
-                        }`}
+                        className={`px-8 py-3 text-lg font-bold rounded-full shadow-lg transform transition-transform focus:outline-none focus:ring-4`}
                     >
                         Mint Silver NFT
                     </button>
@@ -199,9 +195,9 @@ export default function Home() {
                 {/* Gold Button */}
                 <div className="flex flex-col items-center">
                     <button
-                        onClick={reactionCount === 2 ? () => mintNftcore('Gold') : null}
+                        onClick={reactionCount === 1 ? () => mintNftcore('Gold') : null}
                         className={`px-8 py-3 text-lg font-bold rounded-full shadow-lg transform transition-transform focus:outline-none focus:ring-4 ${
-                            reactionCount !== 2
+                            reactionCount !== 1
                                 ? 'bg-yellow-300 text-gray-900 cursor-not-allowed'
                                 : 'bg-yellow-500 text-white hover:scale-105 hover:bg-yellow-600 focus:ring-yellow-400'
                         }`}
