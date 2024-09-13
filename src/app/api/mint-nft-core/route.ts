@@ -76,13 +76,12 @@ const createNft = async (mintType: string, user: string) => {
   const metadataUri = await umi.uploader.uploadJson(metadata).catch((err) => {
     throw new Error(err)
   })
-  // const metadataUri = "https://arweave.net/pgsE5DcfZYpG651NV1s7wKCCR7d2vY6PXSDOxzXk_q8"
 
 
   // We generate a signer for the NFT
   const nftSigner = generateSigner(umi)
   console.log('Creating NFT...')
-  await create(umi, { asset: nftSigner,name: 'My NFT', uri: metadataUri,}).send(umi)
+  await create(umi, { asset: nftSigner,name: user ? `${user} NFT ${mintType}` : "My NFT", uri: metadataUri,}).send(umi)
 
   console.log('View NFT on Metaplex Explorer')
   console.log(`https://core.metaplex.com/explorer/${nftSigner.publicKey}?env=devnet`)

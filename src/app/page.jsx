@@ -90,78 +90,6 @@ export default function Home() {
     };
 
 
-    // return (
-    //     <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 p-6">
-    //         <div className="flex gap-4 mb-6">
-    //             <div className="mb-4">
-    //                 <button
-    //                     onClick={reactionCount === 1 ? () => {
-    //                         mintNftcore('Silver');
-    //                     } : null}
-    //                     className={`px-6 py-3 font-semibold rounded-lg shadow-md focus:outline-none focus:ring-2 focus:ring-offset-2 ${reactionCount >= 2 ? 'bg-gray-400 text-gray-700 cursor-not-allowed' : 'bg-gray-500 text-white hover:bg-gray-600 focus:ring-gray-400'}`}
-    //                     disabled={reactionCount !== 1}
-    //                 >
-    //                     Mint NFT Silver
-    //                 </button>
-    //                 {reactionCount !== 1 && (
-    //                     <p className="text-red-500 mt-2">Not enough reactions</p>
-    //                 )}
-    //             </div>
-
-    //             {/* Gold Button */}
-    //             <div className="mb-4">
-    //                 <button
-    //                     onClick={reactionCount === 2 ? () => {
-    //                         mintNftcore('Gold');
-    //                     } : null}
-    //                     className={`px-6 py-3 font-semibold rounded-lg shadow-md focus:outline-none focus:ring-2 focus:ring-offset-2 ${reactionCount !== 2 ? 'bg-yellow-400 text-gray-700 cursor-not-allowed' : 'bg-yellow-500 text-white hover:bg-yellow-600 focus:ring-yellow-400'}`}
-    //                     disabled={reactionCount !== 2}
-    //                 >
-    //                     Mint NFT Gold
-    //                 </button>
-    //                 {reactionCount !== 2 && (
-    //                     <p className="text-red-500 mt-2">Not enough reactions</p>
-    //                 )}
-    //             </div>
-
-    //             {/* Default Button */}
-    //             <div>
-    //                 {reactionCount !== 1 && reactionCount !== 2 && (
-    //                     <>
-    //                         <button
-    //                             onClick={() => {
-    //                                 mintNftcore('Default');
-    //                             }}
-    //                             className="px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-    //                         >
-    //                             Mint NFT For Fun
-    //                         </button>
-    //                     </>
-    //                 )}
-    //             </div>
-    //         </div>
-    //         {mintAddress && (
-    //             <div className="text-green-600 font-semibold text-lg">
-    //                 <p>
-    //                     NFT Minted: <span className="text-blue-600">{mintAddress}</span>
-    //                 </p>
-    //                 {metaplexExplorerUrl && (
-    //                     <p>
-    //                         View your NFT on Metaplex Explorer: 
-    //                         <a href={metaplexExplorerUrl} className="text-blue-500 hover:underline" target="_blank" rel="noopener noreferrer">
-    //                             {metaplexExplorerUrl}
-    //                         </a>
-    //                     </p>
-    //                 )}
-    //             </div>
-    //         )}
-    //         {error && (
-    //             <p className="text-red-600 font-semibold text-lg">
-    //                 Error: <span className="text-red-800">{error}</span>
-    //             </p>
-    //         )}
-    //     </div>
-    // );
     return (
         <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-br from-purple-400 via-pink-500 to-red-500 p-6">
             {/* Header */}
@@ -181,7 +109,6 @@ export default function Home() {
     
             {/* Button Section */}
             <div className="flex flex-col items-center space-y-6">
-                {reactionCount}
                 {/* Silver Button */}
                 <div className="flex flex-col items-center">
                     <button
@@ -248,7 +175,5 @@ export default function Home() {
             )}
         </div>
     );
-    
-    
     
 }
