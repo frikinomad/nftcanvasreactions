@@ -33,16 +33,12 @@ export default function Home() {
                             return new_count; // Return the updated value
                         });
 
-                        console.log('User reacted to the content!');
+                        // console.log('User reacted to the content!');
                     }
                 };
 
                 canvasClient.onContentReaction(handleContentReaction);
 
-                const key = canvasClient.connectWallet();
-                console.log(key);
-                console.log(reactionCount);
-                
                 if (response) {
                     const user = response.untrusted.user;
                     console.log(user.username);

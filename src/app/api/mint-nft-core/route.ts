@@ -83,8 +83,8 @@ const createNft = async (mintType: string, user: string) => {
   console.log('Creating NFT...')
   await create(umi, { asset: nftSigner,name: user ? `${user} NFT ${mintType}` : "My NFT", uri: metadataUri,}).send(umi)
 
-  console.log('View NFT on Metaplex Explorer')
-  console.log(`https://core.metaplex.com/explorer/${nftSigner.publicKey}?env=devnet`)
+  // console.log('View NFT on Metaplex Explorer')
+  // console.log(`https://core.metaplex.com/explorer/${nftSigner.publicKey}?env=devnet`)
   const metaplexExplorerUrl = `https://core.metaplex.com/explorer/${nftSigner.publicKey}?env=devnet`;
   return { metaplexExplorerUrl};
 
