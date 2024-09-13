@@ -29,7 +29,7 @@ export default function Home() {
               
               // Handle the reaction based on the status
               if (status === 'reacted') {
-                new_count = reactionCount + 1;
+                let new_count = reactionCount + 1;
                 await setReactionCount(new_count);
                 console.log('User reacted to the content!');
                 console.log(reactionCount);
