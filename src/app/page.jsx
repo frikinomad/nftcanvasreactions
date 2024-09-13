@@ -22,14 +22,14 @@ export default function Home() {
           const response = await canvasClient.ready();
 
           
-          const handleContentReaction = (reactionResponse) => {
+          const handleContentReaction = async (reactionResponse) => {
             console.log('Reaction received:', reactionResponse);
             const status = reactionResponse.untrusted.status;
               console.log('Reaction status:', status);
               
               // Handle the reaction based on the status
               if (status === 'reacted') {
-                setReactionCount((prevCount) => prevCount + 1);
+                await setReactionCount((prevCount) => prevCount + 1);
                 console.log('User reacted to the content!');
                 console.log(reactionCount);
               }

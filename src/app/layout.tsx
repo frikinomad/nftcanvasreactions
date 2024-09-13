@@ -18,7 +18,8 @@ export default function RootLayout({
     <html lang="en">
       <head>
         <meta name="dscvr:canvas:version" content="vNext"/>
-        <meta name="og:image" content="https://dscvr-buildathon.vercel.app/Cptn_BlockBeard_w2.jpg"></meta>
+        {/* <meta name="og:image" content="https://dscvr-buildathon.vercel.app/Cptn_BlockBeard_w2.jpg"></meta> */}
+        <meta name="og:image" content="https://s2.coinmarketcap.com/static/img/coins/200x200/5426.png"></meta>
       </head>
       <body className={inter.className}>{children}</body>
     </html>
