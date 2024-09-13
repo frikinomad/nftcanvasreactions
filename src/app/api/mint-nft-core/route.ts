@@ -76,6 +76,7 @@ const createNft = async (mintType: string, user: string) => {
   const metadataUri = await umi.uploader.uploadJson(metadata).catch((err) => {
     throw new Error(err)
   })
+  // const metadataUri = "https://arweave.net/pgsE5DcfZYpG651NV1s7wKCCR7d2vY6PXSDOxzXk_q8"
 
 
   // We generate a signer for the NFT
