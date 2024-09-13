@@ -24,16 +24,29 @@ export default function Home() {
                     console.log('Reaction received:', reactionResponse);
                     const status = reactionResponse.untrusted.status;
                     console.log('Reaction status:', status);
-
+                
+                    // Use functional form of setReactionCount to update based on the previous value
+                    await setReactionCount(prevCount => {
+                        let new_count;
+                
+                        if (status === 'reacted') {
+                            new_count = prevCount + 1;
+                        } else if (status === 'cleared') {
+                            new_count = prevCount - 1;
+                        } else {
+                            // If status is neither 'reacted' nor 'cleared', do nothing
+                            new_count = prevCount;
+                        }
+                
+                        console.log('New reaction count:', new_count);
+                        return new_count; // Return the updated value
+                    });
+                
+                    // Optionally log message if needed
                     if (status === 'reacted') {
-                        // Use functional form of setReactionCount to update based on the previous value
-                        await setReactionCount(prevCount => {
-                            const new_count = prevCount + 1;
-                            console.log('New reaction count:', new_count);
-                            return new_count; // Return the updated value
-                        });
-
-                        // console.log('User reacted to the content!');
+                        console.log('User reacted to the content!');
+                    } else if (status === 'cleared') {
+                        console.log('User cleared their reaction!');
                     }
                 };
 
