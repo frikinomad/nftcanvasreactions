@@ -194,20 +194,20 @@ export default function Home() {
     
                 {/* Gold Button */}
                 <div className="flex flex-col items-center">
-                    <button
-                        onClick={reactionCount === 1 ? () => mintNftcore('Gold') : null}
-                        className={`px-8 py-3 text-lg font-bold rounded-full shadow-lg transform transition-transform focus:outline-none focus:ring-4 ${
-                            reactionCount !== 1
-                                ? 'bg-yellow-300 text-gray-900 cursor-not-allowed'
-                                : 'bg-yellow-500 text-white hover:scale-105 hover:bg-yellow-600 focus:ring-yellow-400'
-                        }`}
-                        disabled={reactionCount !== 2}
-                    >
-                        Mint Gold NFT
-                    </button>
-                    {reactionCount !== 2 && (
-                        <p className="text-red-300 text-sm mt-2">Need more reactions to mint Gold NFT</p>
-                    )}
+                <button
+                    onClick={reactionCount === 1 ? () => mintNftcore('Gold') : null}
+                    className={`px-8 py-3 text-lg font-bold rounded-full shadow-lg transform transition-transform focus:outline-none focus:ring-4 ${
+                        reactionCount === 1
+                            ? 'bg-yellow-500 text-white hover:scale-105 hover:bg-yellow-600 focus:ring-yellow-400'
+                            : 'bg-yellow-300 text-gray-900 cursor-not-allowed'
+                    }`}
+                    disabled={reactionCount !== 1}
+                >
+                    Mint Gold NFT
+                </button>
+                {reactionCount !== 1 && (
+                    <p className="text-red-300 text-sm mt-2">Need more reactions to mint Gold NFT</p>
+                )}
                 </div>
     
                 {/* NFT for Fun Button */}
